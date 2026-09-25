@@ -1,0 +1,14 @@
+{
+  "name": "dalvora-v2",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"start":"node server.js"},
+  "dependencies": {
+    "better-sqlite3":"^11.8.1",
+    "express":"^4.21.2",
+    "jsonwebtoken":"^9.0.2",
+    "bcryptjs":"^2.4.3",
+    "cors":"^2.8.5"
+  }
+}
