@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALVORA Admin</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f6f8;
+  color:#222;
+}
+
+.header{
+  background:#111827;
+  color:white;
+  padding:20px;
+}
+
+.header h1{
+  font-size:24px;
+}
+
+.header p{
+  margin-top:5px;
+  color:#cbd5e1;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.card h2{
+  margin-bottom:15px;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  margin-bottom:12px;
+  font-size:15px;
+}
+
+button{
+  border:0;
+  padding:12px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.btn-add{
+  background:#111827;
+  color:white;
+}
+
+.btn-delete{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+
+.btn-clear{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+th{
+  background:#f9fafb;
+}
+
+.status{
+  padding:12px;
+  background:#ecfdf5;
+  color:#047857;
+  border-radius:10px;
+  margin-bottom:15px;
+  display:none;
+}
+
+@media(max-width:700px){
+  table{
+    font-size:13px;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3){
+    display:none;
+  }
+
+  .container{
+    padding:12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>DALVORA ADMIN</h1>
+  <p>Panel pengelolaan produk toko</p>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h2>➕ Tambah Produk</h2>
+
+    <input id="nama" type="text" placeholder="Nama produk">
+
+    <input id="harga" type="number" placeholder="Harga produk">
+
+    <input id="gambar" type="text" placeholder="URL gambar produk">
+
+    <textarea id="deskripsi" rows="4"
+      placeholder="Deskripsi produk"></textarea>
+
+    <button class="btn-add" onclick="tambahProduk()">
+      Tambah Produk
+    </button>
+
+    <button class="btn-clear" onclick="bersihkanForm()">
+      Bersihkan
+    </button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+
+  <div class="card">
+    <h2>📦 Daftar Produk</h2>
+
+    <div style="overflow-x:auto">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th>Harga</th>
+            <th>Deskripsi</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="daftarProduk"></tbody>
+
+      </table>
+
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+
+let produk = JSON.parse(
+  localStorage.getItem("dalvora_produk")
+) || [];
+
+
+function simpanProduk(){
+
+  localStorage.setItem(
+    "dalvora_produk",
+    JSON.stringify(produk)
+  );
+
+}
+
+
+function tampilkanProduk(){
+
+  const daftar =
+    document.getElementById("daftarProduk");
+
+  daftar.innerHTML = "";
+
+  if(produk.length === 0){
+
+    daftar.innerHTML = `
+      <tr>
+        <td colspan="4">
+          Belum ada produk.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  produk.forEach((item,index)=>{
+
+    daftar.innerHTML += `
+
+      <tr>
+
+        <td>
+          <b>${escapeHTML(item.nama)}</b>
+        </td>
+
+        <td>
+          Rp ${Number(item.harga).toLocaleString("id-ID")}
+        </td>
+
+        <td>
+          ${escapeHTML(item.deskripsi)}
+        </td>
+
+        <td>
+          <button
+            class="btn-delete"
+            onclick="hapusProduk(${index})">
+            Hapus
+          </button>
+        </td>
+
+      </tr>
+
+    `;
+
+  });
+
+}
+
+
+function tambahProduk(){
+
+  const nama =
+    document.getElementById("nama").value.trim();
+
+  const harga =
+    document.getElementById("harga").value;
+
+  const gambar =
+    document.getElementById("gambar").value.trim();
+
+  const deskripsi =
+    document.getElementById("deskripsi").value.trim();
+
+
+  if(!nama || !harga){
+
+    alert("Nama dan harga produk wajib diisi.");
+
+    return;
+  }
+
+
+  produk.push({
+
+    id:Date.now(),
+
+    nama:nama,
+
+    harga:Number(harga),
+
+    gambar:gambar,
+
+    deskripsi:deskripsi
+
+  });
+
+
+  simpanProduk();
+
+  tampilkanProduk();
+
+  bersihkanForm();
+
+
+  const status =
+    document.getElementById("status");
+
+  status.style.display="block";
+
+  status.innerText =
+    "✅ Produk berhasil ditambahkan.";
+
+  setTimeout(()=>{
+
+    status.style.display="none";
+
+  },3000);
+
+}
+
+
+function hapusProduk(index){
+
+  if(confirm("Hapus produk ini?")){
+
+    produk.splice(index,1);
+
+    simpanProduk();
+
+    tampilkanProduk();
+
+  }
+
+}
+
+
+function bersihkanForm(){
+
+  document.getElementById("nama").value="";
+
+  document.getElementById("harga").value="";
+
+  document.getElementById("gambar").value="";
+
+  document.getElementById("deskripsi").value="";
+
+}
+
+
+function escapeHTML(text){
+
+  return String(text)
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+}
+
+
+tampilkanProduk();
+
+</script>
+
+</body>
+</html>
