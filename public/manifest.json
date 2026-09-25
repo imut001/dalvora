@@ -2,7 +2,7 @@
   "name": "DALVORA",
   "short_name": "DALVORA",
   "description": "DALVORA - Marketplace online",
-  "start_url": "./indeks.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#111827",
